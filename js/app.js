@@ -170,11 +170,19 @@ function handleTaskListClick(event) {
 }
 
 function loadSampleTasks() {
+    const existing = Array.from(
+        taskList.querySelectorAll(".task-text")
+    ).map((span) => span.textContent);
+
     const fragment = document.createDocumentFragment();
 
-    taskConfig.sampleTasks.forEach((taskText) => {
-        fragment.appendChild(createTaskElement(taskText, generateTaskId()));
-    });
+    taskConfig.sampleTasks
+        .filter((taskText) => !existing.includes(taskText))
+        .forEach((taskText) => {
+            fragment.appendChild(
+                createTaskElement(taskText, generateTaskId())
+            );
+        });
 
     taskList.appendChild(fragment);
     taskMessage.textContent = "";
