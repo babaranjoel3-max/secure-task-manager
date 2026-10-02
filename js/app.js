@@ -149,23 +149,22 @@ function updateTaskCounts() {
 }
 
 function handleTaskListClick(event) {
-    const target = event.target;
-    const taskItem = target.closest(".task-item");
+    const taskItem = event.target.closest(".task-item");
 
     if (!taskItem) {
         return;
     }
 
-    if (target.matches(".complete-btn")) {
+    if (event.target.matches(".complete-btn")) {
         toggleTaskComplete(taskItem);
-    } else if (target.matches(".edit-btn")) {
+    } else if (event.target.matches(".edit-btn")) {
         // The presence of the edit input is the real "mode", not the label.
         if (taskItem.querySelector(".edit-input")) {
             saveTaskEdit(taskItem);
         } else {
             beginTaskEdit(taskItem);
         }
-    } else if (target.matches(".remove-btn")) {
+    } else if (event.target.matches(".remove-btn")) {
         removeTask(taskItem);
     }
 }
