@@ -50,17 +50,15 @@ return taskItem;
 }
 
 function addTask(taskText) {
-const text = taskText.trim();
-
-if (text === "") {
-    taskMessage.textContent = "Task cannot be empty";
-    return;
+if (taskText.trim() === "") {
+taskMessage.textContent = "Task cannot be empty";
+return;
 }
 
 const taskId = `task-${nextTaskId}`;
 nextTaskId++;
 
-const taskItem = createTaskElement(text, taskId);
+const taskItem = createTaskElement(taskText, taskId);
 
 taskList.appendChild(taskItem);
 
@@ -75,7 +73,9 @@ updateTaskCounts();
 function toggleTaskComplete(taskItem) {
 const isCompleted = taskItem.classList.toggle("completed");
 
-taskItem.dataset.state = isCompleted ? "completed" : "pending";
+taskItem.dataset.state = isCompleted
+    ? "completed"
+    : "pending";
 
 updateTaskCounts();
 
@@ -91,7 +91,6 @@ if (!taskText || !editButton) {
 }
 
 const editInput = document.createElement("input");
-
 editInput.type = "text";
 editInput.classList.add("edit-input");
 editInput.value = taskText.textContent;
@@ -112,9 +111,7 @@ if (!editInput || !editButton) {
     return;
 }
 
-const text = editInput.value.trim();
-
-if (text === "") {
+if (editInput.value.trim() === "") {
     taskMessage.textContent = "Task cannot be empty";
     editInput.focus();
     return;
@@ -122,7 +119,7 @@ if (text === "") {
 
 const taskText = document.createElement("span");
 taskText.classList.add("task-text");
-taskText.textContent = text;
+taskText.textContent = editInput.value;
 
 editInput.replaceWith(taskText);
 editButton.textContent = "Edit";
@@ -143,12 +140,12 @@ let pending = 0;
 let completed = 0;
 
 taskItems.forEach((taskItem) => {
-    if (taskItem.dataset.state === "completed") {
-        completed++;
-    }
-
     if (taskItem.dataset.state === "pending") {
         pending++;
+    }
+
+    if (taskItem.dataset.state === "completed") {
+        completed++;
     }
 });
 
@@ -166,6 +163,14 @@ if (!(target instanceof Element)) {
     return;
 }
 
+if (
+    !target.matches(".complete-btn") &&
+    !target.matches(".edit-btn") &&
+    !target.matches(".remove-btn")
+) {
+    return;
+}
+
 const taskItem = target.closest(".task-item");
 
 if (!taskItem) {
@@ -174,19 +179,13 @@ if (!taskItem) {
 
 if (target.matches(".complete-btn")) {
     toggleTaskComplete(taskItem);
-    return;
-}
-
-if (target.matches(".edit-btn")) {
+} else if (target.matches(".edit-btn")) {
     if (target.textContent === "Save") {
         saveTaskEdit(taskItem);
     } else {
         beginTaskEdit(taskItem);
     }
-    return;
-}
-
-if (target.matches(".remove-btn")) {
+} else if (target.matches(".remove-btn")) {
     removeTask(taskItem);
 }
 
@@ -226,11 +225,5 @@ addTask(taskInput.value);
 loadSamplesBtn.addEventListener("click", loadSampleTasks);
 
 taskList.addEventListener("click", handleTaskListClick);
-
-taskInput.addEventListener("keydown", (event) => {
-if (event.key === "Enter") {
-addTask(taskInput.value);
-}
-});
 
 updateTaskCounts();
