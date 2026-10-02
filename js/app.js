@@ -66,24 +66,36 @@ return taskItem;
 }
 
 function addTask(taskText) {
-if (taskText.trim() === "") {
-taskMessage.textContent = "Task cannot be empty";
-return;
+    if (taskText.trim() === "") {
+        taskMessage.textContent = "Task cannot be empty";
+        return;
+    }
+
+    const task = {
+        id: `task-${nextTaskId}`,
+        text: taskText,
+        state: "pending"
+    };
+
+    nextTaskId += 1;
+
+    const {
+        id: taskId,
+        text,
+        state
+    } = task;
+
+    const taskItem = createTaskElement(text, taskId);
+    taskItem.dataset.state = state;
+
+    taskList.appendChild(taskItem);
+
+    taskInput.value = "";
+    taskMessage.textContent = "";
+
+    updateTaskCounts();
 }
 
-const taskId = `task-${nextTaskId}`;
-nextTaskId += 1;
-
-const taskItem = createTaskElement(taskText, taskId);
-
-taskList.appendChild(taskItem);
-
-taskInput.value = "";
-taskMessage.textContent = "";
-
-updateTaskCounts();
-
-}
 
 function toggleTaskComplete(taskItem) {
 const isCompleted = taskItem.classList.toggle("completed");
