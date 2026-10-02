@@ -74,22 +74,10 @@ if (text === "") {
     return;
 }
 
-const task = {
-    id: `task-${nextTaskId}`,
-    text,
-    state: "pending"
-};
-
+const taskId = `task-${nextTaskId}`;
 nextTaskId += 1;
 
-const {
-    id: taskId,
-    text: safeTaskText,
-    state
-} = task;
-
-const taskItem = createTaskElement(safeTaskText, taskId);
-taskItem.dataset.state = state;
+const taskItem = createTaskElement(text, taskId);
 
 taskList.appendChild(taskItem);
 
@@ -102,9 +90,9 @@ updateTaskCounts();
 }
 
 function toggleTaskComplete(taskItem) {
-const isCompleted = taskItem.classList.toggle("completed");
+const completed = taskItem.classList.toggle("completed");
 
-taskItem.dataset.state = isCompleted
+taskItem.dataset.state = completed
     ? "completed"
     : "pending";
 
@@ -168,38 +156,35 @@ taskItem.remove();
 updateTaskCounts();
 }
 
-function getTaskItems() {
-return Array.from(
-taskList.querySelectorAll(".task-item")
-);
-}
-
 function updateTaskCounts() {
-const taskItems = getTaskItems();
+const taskItems = taskList.querySelectorAll(".task-item");
 
-const pendingTasks = taskItems.filter(
-    ({ dataset }) => dataset.state === "pending"
-);
+let pending = 0;
+let completed = 0;
 
-const completedTasks = taskItems.filter(
-    ({ dataset }) => dataset.state === "completed"
-);
+taskItems.forEach((taskItem) => {
+    if (taskItem.dataset.state === "pending") {
+        pending++;
+    } else if (taskItem.dataset.state === "completed") {
+        completed++;
+    }
+});
 
 const counts = {
     total: taskItems.length,
-    pending: pendingTasks.length,
-    completed: completedTasks.length
+    pending,
+    completed
 };
 
 const {
     total,
-    pending,
-    completed
+    pending: pendingCountValue,
+    completed: completedCountValue
 } = counts;
 
 totalCount.textContent = total;
-pendingCount.textContent = pending;
-completedCount.textContent = completed;
+pendingCount.textContent = pendingCountValue;
+completedCount.textContent = completedCountValue;
 
 
 }
@@ -208,6 +193,14 @@ function handleTaskListClick(event) {
 const target = event.target;
 
 if (!(target instanceof Element)) {
+    return;
+}
+
+if (
+    !target.matches(".complete-btn") &&
+    !target.matches(".edit-btn") &&
+    !target.matches(".remove-btn")
+) {
     return;
 }
 
@@ -228,7 +221,6 @@ if (target.matches(".edit-btn")) {
     } else {
         beginTaskEdit(taskItem);
     }
-
     return;
 }
 
@@ -250,11 +242,7 @@ sampleTasks.forEach((taskText) => {
     const taskId = `task-${nextTaskId}`;
     nextTaskId += 1;
 
-    const taskItem = createTaskElement(
-        taskText,
-        taskId
-    );
-
+    const taskItem = createTaskElement(taskText, taskId);
     fragment.appendChild(taskItem);
 });
 
