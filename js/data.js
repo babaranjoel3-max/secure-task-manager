@@ -1,17 +1,21 @@
-export const taskConfig = {
-labels: {
-complete: "Complete",
-edit: "Edit",
-save: "Save",
-remove: "Remove"
-},
-sampleTasks: [
-"Review DOM selectors",
-"Practice createElement",
-"Study event delegation"
-]
-};
+"use strict";
 
-export const initialState = {
-nextTaskId: 1
-};
+let nextTaskId = 1;
+
+const sampleTasks = [
+    "Review DOM selectors",
+    "Practice createElement",
+    "Study event delegation"
+];
+
+export function generateTaskId() {
+    const taskId = `task-${nextTaskId}`;
+
+    nextTaskId += 1;
+
+    return taskId;
+}
+
+export function getSampleTasks() {
+    return [...sampleTasks];
+}
