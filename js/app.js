@@ -14,7 +14,6 @@ let nextTaskId = 1;
 
 function createTaskElement(taskText, taskId) {
 const taskItem = document.createElement("li");
-
 taskItem.classList.add("task-item");
 taskItem.dataset.taskId = taskId;
 taskItem.dataset.state = "pending";
@@ -76,9 +75,7 @@ updateTaskCounts();
 function toggleTaskComplete(taskItem) {
 const isCompleted = taskItem.classList.toggle("completed");
 
-taskItem.dataset.state = isCompleted
-    ? "completed"
-    : "pending";
+taskItem.dataset.state = isCompleted ? "completed" : "pending";
 
 updateTaskCounts();
 
@@ -124,13 +121,11 @@ if (text === "") {
 }
 
 const taskText = document.createElement("span");
-
 taskText.classList.add("task-text");
 taskText.textContent = text;
 
 editInput.replaceWith(taskText);
 editButton.textContent = "Edit";
-
 taskMessage.textContent = "";
 
 
@@ -144,25 +139,22 @@ updateTaskCounts();
 function updateTaskCounts() {
 const taskItems = taskList.querySelectorAll(".task-item");
 
-const counts = {
-    total: taskItems.length,
-    pending: 0,
-    completed: 0
-};
+let pending = 0;
+let completed = 0;
 
 taskItems.forEach((taskItem) => {
-    const { state } = taskItem.dataset;
+    if (taskItem.dataset.state === "completed") {
+        completed++;
+    }
 
-    if (state === "completed") {
-        counts.completed++;
-    } else if (state === "pending") {
-        counts.pending++;
+    if (taskItem.dataset.state === "pending") {
+        pending++;
     }
 });
 
-totalCount.textContent = counts.total;
-pendingCount.textContent = counts.pending;
-completedCount.textContent = counts.completed;
+totalCount.textContent = taskItems.length;
+pendingCount.textContent = pending;
+completedCount.textContent = completed;
 
 
 }
@@ -203,19 +195,18 @@ if (target.matches(".remove-btn")) {
 
 function loadSampleTasks() {
 const sampleTasks = [
-{ text: "Review DOM selectors" },
-{ text: "Practice createElement" },
-{ text: "Study event delegation" }
+"Review DOM selectors",
+"Practice createElement",
+"Study event delegation"
 ];
 
 const fragment = document.createDocumentFragment();
 
-sampleTasks.forEach(({ text }) => {
+sampleTasks.forEach((taskText) => {
     const taskId = `task-${nextTaskId}`;
     nextTaskId++;
 
-    const taskItem = createTaskElement(text, taskId);
-
+    const taskItem = createTaskElement(taskText, taskId);
     fragment.appendChild(taskItem);
 });
 
