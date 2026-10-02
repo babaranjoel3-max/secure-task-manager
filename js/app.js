@@ -91,6 +91,7 @@ if (!taskText || !editButton) {
 }
 
 const editInput = document.createElement("input");
+
 editInput.type = "text";
 editInput.classList.add("edit-input");
 editInput.value = taskText.textContent;
@@ -118,6 +119,7 @@ if (editInput.value.trim() === "") {
 }
 
 const taskText = document.createElement("span");
+
 taskText.classList.add("task-text");
 taskText.textContent = editInput.value;
 
@@ -159,10 +161,6 @@ completedCount.textContent = completed;
 function handleTaskListClick(event) {
 const target = event.target;
 
-if (!(target instanceof Element)) {
-    return;
-}
-
 if (
     !target.matches(".complete-btn") &&
     !target.matches(".edit-btn") &&
@@ -179,13 +177,19 @@ if (!taskItem) {
 
 if (target.matches(".complete-btn")) {
     toggleTaskComplete(taskItem);
-} else if (target.matches(".edit-btn")) {
+    return;
+}
+
+if (target.matches(".edit-btn")) {
     if (target.textContent === "Save") {
         saveTaskEdit(taskItem);
     } else {
         beginTaskEdit(taskItem);
     }
-} else if (target.matches(".remove-btn")) {
+    return;
+}
+
+if (target.matches(".remove-btn")) {
     removeTask(taskItem);
 }
 
