@@ -3,16 +3,26 @@ const addTaskBtn = document.getElementById("addTaskBtn");
 const loadSamplesBtn = document.getElementById("loadSamplesBtn");
 const taskList = document.getElementById("taskList");
 const taskMessage = document.getElementById("taskMessage");
-const totalCount = document.getElementById("totalCount");
-const pendingCount = document.getElementById("pendingCount");
-const completedCount = document.getElementById("completedCount");
+
+const countDisplays = {
+  totalCount: document.getElementById("totalCount"),
+  pendingCount: document.getElementById("pendingCount"),
+  completedCount: document.getElementById("completedCount")
+};
 
 let taskCounter = 1;
 
 function updateTaskCounts() {
-  const total = taskList.querySelectorAll(".task-item").length;
-  const pending = taskList.querySelectorAll('.task-item[data-state="pending"]').length;
-  const completed = taskList.querySelectorAll('.task-item[data-state="completed"]').length;
+  const items = Array.from(taskList.querySelectorAll(".task-item"));
+  
+  const counts = {
+    total: items.length,
+    pending: items.filter(item => item.dataset.state === "pending").length,
+    completed: items.filter(item => item.dataset.state === "completed").length
+  };
+
+  const { total, pending, completed } = counts;
+  const { totalCount, pendingCount, completedCount } = countDisplays;
 
   totalCount.textContent = total;
   pendingCount.textContent = pending;
@@ -29,28 +39,26 @@ function createTaskElement(taskText, taskId) {
   span.className = "task-text";
   span.textContent = taskText;
 
-  const completeBtn = document.createElement("button");
-  completeBtn.className = "complete-btn";
-  completeBtn.textContent = "Complete";
-
-  const editBtn = document.createElement("button");
-  editBtn.className = "edit-btn";
-  editBtn.textContent = "Edit";
-
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "remove-btn";
-  removeBtn.textContent = "Remove";
+  const buttons = [
+    { text: "Complete", className: "complete-btn" },
+    { text: "Edit", className: "edit-btn" },
+    { text: "Remove", className: "remove-btn" }
+  ];
 
   li.appendChild(span);
-  li.appendChild(completeBtn);
-  li.appendChild(editBtn);
-  li.appendChild(removeBtn);
+
+  buttons.forEach(({ text, className }) => {
+    const btn = document.createElement("button");
+    btn.className = className;
+    btn.textContent = text;
+    li.appendChild(btn);
+  });
 
   return li;
 }
 
 function addTask(taskText) {
-  const trimmedText = taskText.trim();
+  const trimmedText = taskText ? taskText.trim() : "";
 
   if (trimmedText === "") {
     taskMessage.textContent = "Task cannot be empty";
@@ -118,7 +126,7 @@ function removeTask(taskItem) {
 }
 
 function handleTaskListClick(event) {
-  const target = event.target;
+  const { target } = event;
   const taskItem = target.closest(".task-item");
 
   if (!taskItem) return;
@@ -137,7 +145,7 @@ function handleTaskListClick(event) {
 }
 
 function loadSampleTasks() {
-  const samples = [
+  const sampleTasks = [
     "Review DOM selectors",
     "Practice createElement",
     "Study event delegation"
@@ -145,7 +153,7 @@ function loadSampleTasks() {
 
   const fragment = document.createDocumentFragment();
 
-  samples.forEach((sampleText) => {
+  sampleTasks.forEach(sampleText => {
     const taskId = `task-${taskCounter++}`;
     const taskElement = createTaskElement(sampleText, taskId);
     fragment.appendChild(taskElement);
@@ -158,7 +166,7 @@ function loadSampleTasks() {
 
 addTaskBtn.addEventListener("click", () => addTask(taskInput.value));
 
-taskInput.addEventListener("keypress", (event) => {
+taskInput.addEventListener("keypress", event => {
   if (event.key === "Enter") {
     addTask(taskInput.value);
   }
