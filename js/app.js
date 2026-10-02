@@ -232,4 +232,10 @@ loadSamplesBtn.addEventListener("click", loadSampleTasks);
 
 taskList.addEventListener("click", handleTaskListClick);
 
+taskInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        addTask(taskInput.value);
+    }
+});
+
 updateTaskCounts();
