@@ -12,23 +12,7 @@ const completedCount = document.getElementById("completedCount");
 
 let nextTaskId = 1;
 
-const taskData = {
-labels: {
-complete: "Complete",
-edit: "Edit",
-save: "Save",
-remove: "Remove"
-},
-samples: [
-"Review DOM selectors",
-"Practice createElement",
-"Study event delegation"
-]
-};
-
 function createTaskElement(taskText, taskId) {
-const labels = taskData.labels;
-
 const taskItem = document.createElement("li");
 taskItem.classList.add("task-item");
 taskItem.dataset.taskId = taskId;
@@ -41,17 +25,17 @@ taskTextSpan.textContent = taskText;
 const completeButton = document.createElement("button");
 completeButton.type = "button";
 completeButton.classList.add("complete-btn");
-completeButton.textContent = labels.complete;
+completeButton.textContent = "Complete";
 
 const editButton = document.createElement("button");
 editButton.type = "button";
 editButton.classList.add("edit-btn");
-editButton.textContent = labels.edit;
+editButton.textContent = "Edit";
 
 const removeButton = document.createElement("button");
 removeButton.type = "button";
 removeButton.classList.add("remove-btn");
-removeButton.textContent = labels.remove;
+removeButton.textContent = "Remove";
 
 taskItem.append(
     taskTextSpan,
@@ -74,7 +58,7 @@ if (text === "") {
 }
 
 const taskId = `task-${nextTaskId}`;
-nextTaskId += 1;
+nextTaskId++;
 
 const taskItem = createTaskElement(text, taskId);
 
@@ -89,13 +73,11 @@ updateTaskCounts();
 }
 
 function toggleTaskComplete(taskItem) {
-const completed = taskItem.classList.toggle("completed");
+const isCompleted = taskItem.classList.toggle("completed");
 
-if (completed) {
-    taskItem.dataset.state = "completed";
-} else {
-    taskItem.dataset.state = "pending";
-}
+taskItem.dataset.state = isCompleted
+    ? "completed"
+    : "pending";
 
 updateTaskCounts();
 
@@ -117,7 +99,7 @@ editInput.classList.add("edit-input");
 editInput.value = taskText.textContent;
 
 taskText.replaceWith(editInput);
-editButton.textContent = taskData.labels.save;
+editButton.textContent = "Save";
 
 editInput.focus();
 
@@ -146,7 +128,8 @@ taskText.classList.add("task-text");
 taskText.textContent = text;
 
 editInput.replaceWith(taskText);
-editButton.textContent = taskData.labels.edit;
+editButton.textContent = "Edit";
+
 taskMessage.textContent = "";
 
 updateTaskCounts();
@@ -162,27 +145,22 @@ updateTaskCounts();
 function updateTaskCounts() {
 const taskItems = taskList.querySelectorAll(".task-item");
 
-const states = Array.from(taskItems).map(
-    (taskItem) => taskItem.dataset.state
-);
+let pending = 0;
+let completed = 0;
 
-const pending = states.filter(
-    (state) => state === "pending"
-).length;
+taskItems.forEach((taskItem) => {
+    if (taskItem.dataset.state === "pending") {
+        pending++;
+    }
 
-const completed = states.filter(
-    (state) => state === "completed"
-).length;
+    if (taskItem.dataset.state === "completed") {
+        completed++;
+    }
+});
 
-const counts = {
-    total: taskItems.length,
-    pending: pending,
-    completed: completed
-};
-
-totalCount.textContent = counts.total;
-pendingCount.textContent = counts.pending;
-completedCount.textContent = counts.completed;
+totalCount.textContent = taskItems.length;
+pendingCount.textContent = pending;
+completedCount.textContent = completed;
 
 
 }
@@ -206,11 +184,12 @@ if (target.matches(".complete-btn")) {
 }
 
 if (target.matches(".edit-btn")) {
-    if (target.textContent === taskData.labels.save) {
+    if (target.textContent === "Save") {
         saveTaskEdit(taskItem);
     } else {
         beginTaskEdit(taskItem);
     }
+
     return;
 }
 
@@ -222,11 +201,17 @@ if (target.matches(".remove-btn")) {
 }
 
 function loadSampleTasks() {
+const sampleTasks = [
+"Review DOM selectors",
+"Practice createElement",
+"Study event delegation"
+];
+
 const fragment = document.createDocumentFragment();
 
-taskData.samples.forEach((taskText) => {
+sampleTasks.forEach((taskText) => {
     const taskId = `task-${nextTaskId}`;
-    nextTaskId += 1;
+    nextTaskId++;
 
     const taskItem = createTaskElement(taskText, taskId);
     fragment.appendChild(taskItem);
