@@ -1,19 +1,5 @@
 "use strict";
 
-import {
-    sampleTasks,
-    generateTaskId
-} from "./data.js";
-
-import {
-    isValidTaskText
-} from "./utils.js";
-
-import {
-    createTaskElement,
-    updateTaskCounts
-} from "./display.js";
-
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const loadSamplesBtn = document.getElementById("loadSamplesBtn");
@@ -24,150 +10,219 @@ const totalCount = document.getElementById("totalCount");
 const pendingCount = document.getElementById("pendingCount");
 const completedCount = document.getElementById("completedCount");
 
-function refreshCounts() {
-    updateTaskCounts(
-        taskList,
-        totalCount,
-        pendingCount,
-        completedCount
-    );
+let nextTaskId = 1;
+
+function createTaskElement(taskText, taskId) {
+const taskItem = document.createElement("li");
+taskItem.classList.add("task-item");
+taskItem.dataset.taskId = taskId;
+taskItem.dataset.state = "pending";
+
+const taskTextSpan = document.createElement("span");
+taskTextSpan.classList.add("task-text");
+taskTextSpan.textContent = taskText;
+
+const completeButton = document.createElement("button");
+completeButton.type = "button";
+completeButton.classList.add("complete-btn");
+completeButton.textContent = "Complete";
+
+const editButton = document.createElement("button");
+editButton.type = "button";
+editButton.classList.add("edit-btn");
+editButton.textContent = "Edit";
+
+const removeButton = document.createElement("button");
+removeButton.type = "button";
+removeButton.classList.add("remove-btn");
+removeButton.textContent = "Remove";
+
+taskItem.append(
+    taskTextSpan,
+    completeButton,
+    editButton,
+    removeButton
+);
+
+return taskItem;
+
+
 }
 
 function addTask(taskText) {
-    if (!isValidTaskText(taskText)) {
-        taskMessage.textContent = "Task cannot be empty";
-        return;
-    }
+if (taskText.trim() === "") {
+taskMessage.textContent = "Task cannot be empty";
+return;
+}
 
-    const taskId = generateTaskId();
-    const taskItem = createTaskElement(taskText, taskId);
+const taskId = `task-${nextTaskId}`;
+nextTaskId += 1;
 
-    taskList.appendChild(taskItem);
+const taskItem = createTaskElement(taskText, taskId);
 
-    taskInput.value = "";
-    taskMessage.textContent = "";
+taskList.appendChild(taskItem);
 
-    refreshCounts();
+taskInput.value = "";
+taskMessage.textContent = "";
+
+updateTaskCounts();
+
+
 }
 
 function toggleTaskComplete(taskItem) {
-    const isCompleted = taskItem.classList.toggle("completed");
+const isCompleted = taskItem.classList.toggle("completed");
 
-    taskItem.dataset.state = isCompleted
-        ? "completed"
-        : "pending";
+taskItem.dataset.state = isCompleted
+    ? "completed"
+    : "pending";
 
-    refreshCounts();
+updateTaskCounts();
+
+
 }
 
 function beginTaskEdit(taskItem) {
-    const taskText = taskItem.querySelector(".task-text");
-    const editButton = taskItem.querySelector(".edit-btn");
+const taskText = taskItem.querySelector(".task-text");
+const editButton = taskItem.querySelector(".edit-btn");
 
-    if (!taskText || !editButton) {
-        return;
-    }
+if (!taskText || !editButton) {
+    return;
+}
 
-    const editInput = document.createElement("input");
+const editInput = document.createElement("input");
 
-    editInput.type = "text";
-    editInput.classList.add("edit-input");
-    editInput.value = taskText.textContent;
+editInput.type = "text";
+editInput.classList.add("edit-input");
+editInput.value = taskText.textContent;
 
-    taskText.replaceWith(editInput);
-    editButton.textContent = "Save";
+taskText.replaceWith(editInput);
+editButton.textContent = "Save";
 
-    editInput.focus();
+editInput.focus();
+
+
 }
 
 function saveTaskEdit(taskItem) {
-    const editInput = taskItem.querySelector(".edit-input");
-    const editButton = taskItem.querySelector(".edit-btn");
+const editInput = taskItem.querySelector(".edit-input");
+const editButton = taskItem.querySelector(".edit-btn");
 
-    if (!editInput || !editButton) {
-        return;
-    }
+if (!editInput || !editButton) {
+    return;
+}
 
-    if (!isValidTaskText(editInput.value)) {
-        taskMessage.textContent = "Task cannot be empty";
-        editInput.focus();
-        return;
-    }
+if (editInput.value.trim() === "") {
+    taskMessage.textContent = "Task cannot be empty";
+    editInput.focus();
+    return;
+}
 
-    const taskText = document.createElement("span");
+const taskText = document.createElement("span");
 
-    taskText.classList.add("task-text");
-    taskText.textContent = editInput.value;
+taskText.classList.add("task-text");
+taskText.textContent = editInput.value;
 
-    editInput.replaceWith(taskText);
-    editButton.textContent = "Edit";
-    taskMessage.textContent = "";
+editInput.replaceWith(taskText);
+editButton.textContent = "Edit";
+taskMessage.textContent = "";
+
+
 }
 
 function removeTask(taskItem) {
-    taskItem.remove();
-    refreshCounts();
+taskItem.remove();
+updateTaskCounts();
+}
+
+function updateTaskCounts() {
+const taskItems = taskList.querySelectorAll(".task-item");
+
+let pending = 0;
+let completed = 0;
+
+taskItems.forEach((taskItem) => {
+    if (taskItem.dataset.state === "pending") {
+        pending += 1;
+    } else if (taskItem.dataset.state === "completed") {
+        completed += 1;
+    }
+});
+
+totalCount.textContent = taskItems.length;
+pendingCount.textContent = pending;
+completedCount.textContent = completed;
+
+
 }
 
 function handleTaskListClick(event) {
-    const target = event.target;
+const target = event.target;
 
-    if (
-        !target.matches(".complete-btn") &&
-        !target.matches(".edit-btn") &&
-        !target.matches(".remove-btn")
-    ) {
-        return;
+if (!(target instanceof Element)) {
+    return;
+}
+
+const taskItem = target.closest(".task-item");
+
+if (!taskItem) {
+    return;
+}
+
+if (target.matches(".complete-btn")) {
+    toggleTaskComplete(taskItem);
+    return;
+}
+
+if (target.matches(".edit-btn")) {
+    if (target.textContent === "Save") {
+        saveTaskEdit(taskItem);
+    } else {
+        beginTaskEdit(taskItem);
     }
+    return;
+}
 
-    const taskItem = target.closest(".task-item");
+if (target.matches(".remove-btn")) {
+    removeTask(taskItem);
+}
 
-    if (!taskItem) {
-        return;
-    }
 
-    if (target.matches(".complete-btn")) {
-        toggleTaskComplete(taskItem);
-        return;
-    }
-
-    if (target.matches(".edit-btn")) {
-        if (target.textContent === "Save") {
-            saveTaskEdit(taskItem);
-        } else {
-            beginTaskEdit(taskItem);
-        }
-        return;
-    }
-
-    if (target.matches(".remove-btn")) {
-        removeTask(taskItem);
-    }
 }
 
 function loadSampleTasks() {
-    const fragment = document.createDocumentFragment();
+const sampleTasks = [
+"Review DOM selectors",
+"Practice createElement",
+"Study event delegation"
+];
 
-    sampleTasks.forEach((taskText) => {
-        const taskId = generateTaskId();
-        const taskItem = createTaskElement(taskText, taskId);
+const fragment = document.createDocumentFragment();
 
-        fragment.appendChild(taskItem);
-    });
+sampleTasks.forEach((taskText) => {
+    const taskId = `task-${nextTaskId}`;
+    nextTaskId += 1;
 
-    taskList.appendChild(fragment);
+    const taskItem = createTaskElement(taskText, taskId);
 
-    taskMessage.textContent = "";
+    fragment.appendChild(taskItem);
+});
 
-    refreshCounts();
+taskList.appendChild(fragment);
+
+taskMessage.textContent = "";
+
+updateTaskCounts();
+
+
 }
 
 addTaskBtn.addEventListener("click", () => {
-    addTask(taskInput.value);
+addTask(taskInput.value);
 });
 
 loadSamplesBtn.addEventListener("click", loadSampleTasks);
 
 taskList.addEventListener("click", handleTaskListClick);
 
-refreshCounts();
+updateTaskCounts();
