@@ -12,7 +12,24 @@ const completedCount = document.getElementById("completedCount");
 
 let nextTaskId = 1;
 
+const taskConfig = {
+completeLabel: "Complete",
+editLabel: "Edit",
+removeLabel: "Remove",
+sampleTasks: [
+"Review DOM selectors",
+"Practice createElement",
+"Study event delegation"
+]
+};
+
 function createTaskElement(taskText, taskId) {
+const {
+completeLabel,
+editLabel,
+removeLabel
+} = taskConfig;
+
 const taskItem = document.createElement("li");
 taskItem.classList.add("task-item");
 taskItem.dataset.taskId = taskId;
@@ -25,17 +42,17 @@ taskTextSpan.textContent = taskText;
 const completeButton = document.createElement("button");
 completeButton.type = "button";
 completeButton.classList.add("complete-btn");
-completeButton.textContent = "Complete";
+completeButton.textContent = completeLabel;
 
 const editButton = document.createElement("button");
 editButton.type = "button";
 editButton.classList.add("edit-btn");
-editButton.textContent = "Edit";
+editButton.textContent = editLabel;
 
 const removeButton = document.createElement("button");
 removeButton.type = "button";
 removeButton.classList.add("remove-btn");
-removeButton.textContent = "Remove";
+removeButton.textContent = removeLabel;
 
 taskItem.append(
     taskTextSpan,
@@ -45,7 +62,6 @@ taskItem.append(
 );
 
 return taskItem;
-
 
 }
 
@@ -67,7 +83,6 @@ taskMessage.textContent = "";
 
 updateTaskCounts();
 
-
 }
 
 function toggleTaskComplete(taskItem) {
@@ -78,7 +93,6 @@ taskItem.dataset.state = isCompleted
     : "pending";
 
 updateTaskCounts();
-
 
 }
 
@@ -100,7 +114,6 @@ taskText.replaceWith(editInput);
 editButton.textContent = "Save";
 
 editInput.focus();
-
 
 }
 
@@ -127,7 +140,6 @@ editInput.replaceWith(taskText);
 editButton.textContent = "Edit";
 taskMessage.textContent = "";
 
-
 }
 
 function removeTask(taskItem) {
@@ -149,10 +161,21 @@ taskItems.forEach((taskItem) => {
     }
 });
 
-totalCount.textContent = taskItems.length;
-pendingCount.textContent = pending;
-completedCount.textContent = completed;
+const counts = {
+    total: taskItems.length,
+    pending,
+    completed
+};
 
+const {
+    total,
+    pending: pendingTotal,
+    completed: completedTotal
+} = counts;
+
+totalCount.textContent = total;
+pendingCount.textContent = pendingTotal;
+completedCount.textContent = completedTotal;
 
 }
 
@@ -187,16 +210,10 @@ if (target.matches(".remove-btn")) {
     removeTask(taskItem);
 }
 
-
 }
 
 function loadSampleTasks() {
-const sampleTasks = [
-"Review DOM selectors",
-"Practice createElement",
-"Study event delegation"
-];
-
+const { sampleTasks } = taskConfig;
 const fragment = document.createDocumentFragment();
 
 sampleTasks.forEach((taskText) => {
@@ -204,7 +221,6 @@ sampleTasks.forEach((taskText) => {
     nextTaskId += 1;
 
     const taskItem = createTaskElement(taskText, taskId);
-
     fragment.appendChild(taskItem);
 });
 
@@ -213,7 +229,6 @@ taskList.appendChild(fragment);
 taskMessage.textContent = "";
 
 updateTaskCounts();
-
 
 }
 
